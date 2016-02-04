@@ -15,13 +15,13 @@ setup(
     author='Hervé Ménager',
     author_email='hmenager@pasteur.fr',
     url='https://github.com/edamontology/ReMoTE.git',
-    packages=['remote'],
+    packages=['edamxpathvalidator'],
     install_requires=[
           'lxml'
     ],
     license="BSD",
     entry_points={
-          'console_scripts': ['remote=remote:main'],
+          'console_scripts': ['edamxpathvalidator=edamxpathvalidator:main'],
         },
     include_package_data=True,
     zip_safe=False 

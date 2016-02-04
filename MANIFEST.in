@@ -1,0 +1,3 @@
+include edamxpathvalidator/*
+include README.md
+include MANIFEST.in
