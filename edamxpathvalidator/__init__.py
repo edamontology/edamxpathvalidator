@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """EDAM XPath validator module script"""
 
-import argparse
+import sys, argparse
 from lxml import etree
 
 #parsing and declaring namespaces...
@@ -9,9 +9,11 @@ EDAM_NS = {'owl' : 'http://www.w3.org/2002/07/owl#',
            'rdf':"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
            'rdfs':"http://www.w3.org/2000/01/rdf-schema#",
            'oboInOwl': "http://www.geneontology.org/formats/oboInOwl#"}
+errors = 0
 
 def report(element, targets, error):
     """ report a consistency error between a source and a target concept """
+    global errors
     source_label = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
     source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
     target_id = targets[0].xpath('@rdf:about', namespaces=EDAM_NS)[0]
@@ -19,6 +21,7 @@ def report(element, targets, error):
         target_label = targets[0].xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
     except:
         target_label = "no label"
+    errors += 1
     print("Error: " + error + \
           " - '" + source_label + \
           "' (" + source_id + ") -> '" + \
@@ -63,6 +66,8 @@ def main():
     args = parser.parse_args()
     if args.file:
         check_file(args.file)
+        if errors > 0:
+            sys.exit(1)
 
 if __name__ == '__main__':
     main()
