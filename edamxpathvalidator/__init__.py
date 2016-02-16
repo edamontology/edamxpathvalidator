@@ -35,10 +35,12 @@ def check_file(file_path):
     for element in els:
         for superclass_id in element.xpath('rdfs:subClassOf/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            superclass_el = doc.xpath("//owl:Class[@rdf:about='" + superclass_id+"']", \
+                                 namespaces=EDAM_NS)[0]
             if superclass_id==source_id:
-                targets = doc.xpath("//owl:Class[@rdf:about='" + superclass_id+"']", \
-                                     namespaces=EDAM_NS)
-                report(element, targets, "Element " + source_id + " is superclass of itself")
+                report(element, [superclass_el], "Element " + source_id + " is superclass of itself")
+            if superclass_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [superclass_el], "Element " + source_id + " has a deprecated superclass")
         if element.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
             consider_ids = element.xpath('oboInOwl:consider/@rdf:resource', namespaces=EDAM_NS)
             if consider_ids:
