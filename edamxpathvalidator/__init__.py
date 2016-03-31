@@ -33,6 +33,12 @@ def check_file(file_path):
     #listing obsolete terms pointing to other obsolete terms as consider or replacement...
     els = doc.xpath("//owl:Class", namespaces=EDAM_NS)
     for element in els:
+        for topic_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_topic"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
+            source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            topic_el = doc.xpath("//owl:Class[@rdf:about='" + topic_id+"']", \
+                                 namespaces=EDAM_NS)[0]
+            if topic_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [topic_el], "Element " + source_id + " has a deprecated topic")
         for superclass_id in element.xpath('rdfs:subClassOf/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
             superclass_el = doc.xpath("//owl:Class[@rdf:about='" + superclass_id+"']", \
