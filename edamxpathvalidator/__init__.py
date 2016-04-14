@@ -39,6 +39,30 @@ def check_file(file_path):
                                  namespaces=EDAM_NS)[0]
             if topic_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
                 report(element, [topic_el], "Class " + source_id + " has a deprecated topic")
+        for data_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/is_format_of"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
+            source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            data_el = doc.xpath("//owl:Class[@rdf:about='" + data_id+"']", \
+                                 namespaces=EDAM_NS)[0]
+            if data_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [data_el], "Format " + source_id + " has a deprecated topic")
+        for data_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_input"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
+            source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            data_el = doc.xpath("//owl:Class[@rdf:about='" + data_id+"']", \
+                                 namespaces=EDAM_NS)[0]
+            if data_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [data_el], "Operation " + source_id + " has a deprecated input")
+        for data_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_output"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
+            source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            data_el = doc.xpath("//owl:Class[@rdf:about='" + data_id+"']", \
+                                 namespaces=EDAM_NS)[0]
+            if data_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [data_el], "Operation " + source_id + " has a deprecated output")
+        for data_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/is_identifier_of"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
+            source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
+            data_el = doc.xpath("//owl:Class[@rdf:about='" + data_id+"']", \
+                                 namespaces=EDAM_NS)[0]
+            if data_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
+                report(element, [data_el], "Identifier " + source_id + " has a deprecated data")
         for superclass_id in element.xpath('rdfs:subClassOf/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
             superclass_el = doc.xpath("//owl:Class[@rdf:about='" + superclass_id+"']", \
