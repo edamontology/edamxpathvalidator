@@ -8,7 +8,8 @@ from lxml import etree
 EDAM_NS = {'owl' : 'http://www.w3.org/2002/07/owl#',
            'rdf':"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
            'rdfs':"http://www.w3.org/2000/01/rdf-schema#",
-           'oboInOwl': "http://www.geneontology.org/formats/oboInOwl#"}
+           'oboInOwl': "http://www.geneontology.org/formats/oboInOwl#",
+           'eo': 'http://edamontology.org/'}
 errors = 0
 
 def report(element, targets, error):
@@ -30,9 +31,18 @@ def report(element, targets, error):
 def check_file(file_path):
     """ check the consistency of the EDAM file specified by a filesystem path """
     doc = etree.parse(file_path)
-    #listing obsolete terms pointing to other obsolete terms as consider or replacement...
-    els = doc.xpath("//owl:Class", namespaces=EDAM_NS)
+    next_id = int(doc.xpath('//eo:next_id/text()', namespaces=EDAM_NS)[0])
+    all_ids = {}
+    els = doc.xpath("//owl:Class[@rdf:about and starts-with(@rdf:about, 'http://edamontology.org/')]", namespaces=EDAM_NS)
     for element in els:
+        current_id = int(element.xpath('@rdf:about', namespaces=EDAM_NS)[0].split('_')[1])
+        if current_id>next_id:
+            report(element, [element], 'Element ID (numerical part) for concept is greater than next_id')
+        if current_id in all_ids:
+            report(element, all_ids[current_id], 'Element ID (numerical part) has already been used in another ID')
+            all_ids[current_id].append(element)
+        else:
+            all_ids[current_id] = [element]
         for topic_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_topic"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
             topic_el = doc.xpath("//owl:Class[@rdf:about='" + topic_id+"']", \
