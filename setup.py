@@ -17,7 +17,8 @@ setup(
     url='https://github.com/edamontology/ReMoTE.git',
     packages=['edamxpathvalidator'],
     install_requires=[
-          'lxml'
+          'lxml',
+          'blessings'
     ],
     license="BSD",
     entry_points={
