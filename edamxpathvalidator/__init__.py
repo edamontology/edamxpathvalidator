@@ -48,9 +48,9 @@ def check_file(file_path):
     els = doc.xpath("//owl:Class[@rdf:about and starts-with(@rdf:about, 'http://edamontology.org/')]", namespaces=EDAM_NS)
     for element in els:
         current_id = int(element.xpath('@rdf:about', namespaces=EDAM_NS)[0].split('_')[1])
-        if current_id>next_id:
+        if current_id>=next_id:
             report(element, [element], 'Element ID (numerical part) for '
-                                       'concept is greater than next_id', True)
+                                       'concept is equal or greater than next_id', True)
         if current_id in all_ids:
             report(element, all_ids[current_id], 'Element ID (numerical part) has already been used in another ID', False)
             all_ids[current_id].append(element)
