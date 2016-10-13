@@ -99,6 +99,15 @@ def check_file(file_path):
                                                                         "superclass of itself", True)
             if superclass_el.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
                 report(element, [superclass_el], "Class " + source_id + " has a deprecated superclass", True)
+        for synonym in element.xpath('oboInOwl:hasExactSynonym/text() | oboInOwl:hasNarrowSynonym/text() | oboInOwl:hasBroadSynonym/text()', namespaces=EDAM_NS):
+            synonyms_xpath = '//owl:Class[oboInOwl:hasExactSynonym/text()="' + synonym + '" or oboInOwl:hasNarrowSynonym/text()="' + synonym + '" or oboInOwl:hasBroadSynonym/text()="' + synonym + '"]'
+            duplicate_synonym_elements = element.xpath(synonyms_xpath, namespaces=EDAM_NS)
+            if len(duplicate_synonym_elements)>1:
+                namespaces = [dup_el.xpath('@rdf:about', namespaces=EDAM_NS)[0][24] for dup_el in duplicate_synonym_elements]
+                # the above statement returns a list of namespaces for the different terms with the same synonym as letters [t, o, d, f]
+                if len(namespaces)>len(set(namespaces)):
+                     report(element, duplicate_synonym_elements, "multiple concepts with the same namespace "
+                                                                       " have the same synonym '" + synonym + "'", True)
         if element.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
             consider_ids = element.xpath('oboInOwl:consider/@rdf:resource', namespaces=EDAM_NS)
             if consider_ids:
