@@ -56,6 +56,9 @@ def check_file(file_path):
             all_ids[current_id].append(element)
         else:
             all_ids[current_id] = [element]
+        label = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
+        if label.endswith('.'):
+            report(element, all_ids[current_id], 'the class label ends with a dot, which is forbidden', True)
         for topic_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_topic"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
             topic_el = doc.xpath("//owl:Class[@rdf:about='" + topic_id+"']", \
