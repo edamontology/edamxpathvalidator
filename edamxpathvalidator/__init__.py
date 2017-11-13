@@ -22,11 +22,15 @@ def report(element, targets, message, error=False):
     global WARNINGS
     source_label = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
     source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
-    target_id = targets[0].xpath('@rdf:about', namespaces=EDAM_NS)[0]
-    try:
-        target_label = targets[0].xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
-    except:
-        target_label = "no label"
+    if targets is not None:
+        target_id = targets[0].xpath('@rdf:about', namespaces=EDAM_NS)[0]
+        try:
+            target_label = targets[0].xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
+        except:
+            target_label = "no label"
+        print_message = message + " - '" + source_label + "' (" + source_id + ") -> '" + target_label + "' (" + target_id + ")"
+    else:
+        print_message = message + " - '" + source_label + "' (" + source_id + ")"
     if error:
         color = term.red
         ERRORS += 1
@@ -35,10 +39,7 @@ def report(element, targets, message, error=False):
         color = term.yellow
         WARNINGS += 1
         message = "Warning: " + message
-    print(color(message + \
-          " - '" + source_label + \
-          "' (" + source_id + ") -> '" + \
-          target_label + "' (" + target_id + ")"))
+    print(color(print_message))
 
 def check_file(file_path):
     """ check the consistency of the EDAM file specified by a filesystem path """
@@ -112,7 +113,7 @@ def check_file(file_path):
                      report(element, duplicate_synonym_elements, "multiple concepts with the same namespace "
                                                                        " have the same synonym '" + synonym + "'", True)
         if element.xpath("owl:deprecated='true'", namespaces=EDAM_NS):
-            consider_ids = element.xpath('oboInOwl:consider/@rdf:resource', namespaces=EDAM_NS)
+            consider_ids = element.xpath("oboInOwl:consider/@rdf:resource", namespaces=EDAM_NS)
             if consider_ids:
                 consider_id = consider_ids[0]
                 targets = doc.xpath("//owl:Class[@rdf:about='" +\
@@ -120,7 +121,7 @@ def check_file(file_path):
                                     namespaces=EDAM_NS)
                 if targets:
                     report(element, targets, "obsolete consider obsolete", True)
-            replaced_by_ids = element.xpath('oboInOwl:replacedBy/@rdf:resource', namespaces=EDAM_NS)
+            replaced_by_ids = element.xpath("oboInOwl:replacedBy/@rdf:resource", namespaces=EDAM_NS)
             if replaced_by_ids:
                 replaced_by_id = replaced_by_ids[0]
                 targets = doc.xpath("//owl:Class[@rdf:about='" +\
@@ -136,8 +137,20 @@ def check_file(file_path):
                                             replaced_by_id + "']",\
                                             namespaces=EDAM_NS)
                         report(element, targets, "obsolete '" + source_axis +\
-                               "' term replacedBy '" + target_axis + "' "
-                                                                     "term", True)
+                               "' term replacedBy '" + target_axis + "' term", True)
+        else:
+            consider_ids = element.xpath("oboInOwl:consider/@rdf:resource", namespaces=EDAM_NS)
+            if consider_ids:
+                report(element, None, "non-obsolete with consider", True)
+            replaced_by_ids = element.xpath("oboInOwl:replacedBy/@rdf:resource", namespaces=EDAM_NS)
+            if replaced_by_ids:
+                report(element, None, "non-obsolete with replacedBy", True)
+        consider_ids = element.xpath('oboInOwl:consider[not(@rdf:resource)]', namespaces=EDAM_NS)
+        if consider_ids:
+            report(element, None, "malformed consider", True)
+        replaced_by_ids = element.xpath('oboInOwl:replacedBy[not(@rdf:resource)]', namespaces=EDAM_NS)
+        if replaced_by_ids:
+            report(element, None, "malformer replacedBy", True)
 
 def main():
     """ function called by the module script """
