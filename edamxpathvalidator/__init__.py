@@ -60,9 +60,16 @@ def check_file(file_path):
         labels = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)
         if len(labels)>1:
             report(element, all_ids[current_id], 'the class has two labels, which is forbidden in EDAM (no multi-language handling)', True)
+        if len(labels)==0:
+            report(element, all_ids[current_id], 'the class has no labels, which is forbidden in EDAM', True)
         label = labels[0]
         if label.endswith('.'):
             report(element, all_ids[current_id], 'the class label ends with a dot, which is forbidden', True)
+        descriptions = element.xpath('oboInOwl:hasDefinition/text()', namespaces=EDAM_NS)
+        if len(descriptions)>1:
+            report(element, all_ids[current_id], 'the class has two descriptions, which is forbidden in EDAM (no multi-language handling)', True)
+        if len(descriptions)==0:
+            report(element, all_ids[current_id], 'the class has no description, which is forbidden in EDAM', True)
         for topic_id in element.xpath('rdfs:subClassOf/owl:Restriction[owl:onProperty/@rdf:resource="http://edamontology.org/has_topic"]/owl:someValuesFrom/@rdf:resource', namespaces=EDAM_NS):
             source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
             topic_el = doc.xpath("//owl:Class[@rdf:about='" + topic_id+"']", \
