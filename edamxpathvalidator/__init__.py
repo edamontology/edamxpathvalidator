@@ -20,8 +20,10 @@ def report(element, targets, message, error=False):
     """ report a consistency error between a source and a target concept """
     global ERRORS
     global WARNINGS
-    print(element.xpath('rdfs:label/text()', namespaces=EDAM_NS))
-    source_label = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
+    try:
+        source_label = element.xpath('rdfs:label/text()', namespaces=EDAM_NS)[0]
+    except:
+        source_label = "Unknown label"
     source_id = element.xpath('@rdf:about', namespaces=EDAM_NS)[0]
     if targets is not None:
         target_id = targets[0].xpath('@rdf:about', namespaces=EDAM_NS)[0]
