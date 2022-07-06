@@ -1,2 +1,2 @@
-lxml==3.5.0
+lxml==4.9.1
 blessings>=1.6.0
